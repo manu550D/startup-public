@@ -7,6 +7,11 @@ import json
 
 # Constants
 USER_DATA_FILE = "user_data.json"
+UPLOAD_DIR = "uploads"
+
+# Ensure upload directory exists
+if not os.path.exists(UPLOAD_DIR):
+    os.makedirs(UPLOAD_DIR)
 
 def load_user_data():
     if os.path.exists(USER_DATA_FILE):
@@ -41,6 +46,8 @@ if not st.session_state["logged_in"]:
             if phone_number in user_data:
                 st.warning("This phone number is already registered.")
             else:
+                user_folder = os.path.join(UPLOAD_DIR, phone_number)
+                os.makedirs(user_folder, exist_ok=True)
                 user_data[phone_number] = {"bills": []}
                 save_user_data(user_data)
                 st.success("Registration successful! You can now log in.")
@@ -64,6 +71,23 @@ else:
     st.header("Landing Page")
     st.write(f"Welcome, {st.session_state['current_user']}!")
 
+    user_folder = os.path.join(UPLOAD_DIR, st.session_state['current_user'])
+
+    # Display uploaded files
+    st.subheader("Your Uploaded Bills")
+    if os.path.exists(user_folder):
+        files = os.listdir(user_folder)
+        if files:
+            for file_name in files:
+                file_path = os.path.join(user_folder, file_name)
+                st.write(file_name)
+                if file_name.lower().endswith(('.png', '.jpg', '.jpeg')):
+                    st.image(file_path, use_column_width=True)
+                elif file_name.lower().endswith('.pdf'):
+                    st.write(f"PDF: {file_name} (download it from {file_path})")
+        else:
+            st.write("No bills uploaded yet.")
+
     # Add a Plus Button
     if st.button("+ Add Bill"):
         st.write("Choose an option:")
@@ -72,19 +96,12 @@ else:
         if action == "Upload from Gallery":
             uploaded_file = st.file_uploader("Choose a file", type=["jpg", "jpeg", "png", "pdf"])
             if uploaded_file is not None:
-                file_type = uploaded_file.type
-                if file_type.startswith("image"):
-                    image = Image.open(uploaded_file)
-                    st.image(image, caption="Uploaded Bill", use_column_width=True)
-                    user_data[st.session_state["current_user"]]["bills"].append(uploaded_file.name)
-                    save_user_data(user_data)
-                    st.success("Bill uploaded and saved!")
-                elif file_type == "application/pdf":
-                    st.write("PDF Preview is not available in this version. File uploaded successfully.")
-                    user_data[st.session_state["current_user"]]["bills"].append(uploaded_file.name)
-                    save_user_data(user_data)
-                else:
-                    st.error("Unsupported file format. Please upload an image or PDF.")
+                file_path = os.path.join(user_folder, uploaded_file.name)
+                with open(file_path, "wb") as f:
+                    f.write(uploaded_file.getbuffer())
+                user_data[st.session_state["current_user"]]["bills"].append(uploaded_file.name)
+                save_user_data(user_data)
+                st.success("Bill uploaded and saved!")
         elif action == "Take a Photo":
             st.write("Taking a photo feature is not available in this MVP version.")
 

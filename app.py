@@ -27,7 +27,7 @@ def save_user_data(data):
 user_data = load_user_data()
 
 # Streamlit App
-st.title("MVP Application")
+st.title("Bills")
 st.subheader("A Simple App with Login and Landing Page")
 
 # Session State for Login

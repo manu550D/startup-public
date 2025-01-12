@@ -1,36 +1,29 @@
 import streamlit as st
-from datetime import datetime
 
-# Title and Intro
-st.title("Salon Booking App")
-st.subheader("Effortlessly book salon services in Kerala!")
+# Streamlit App
+st.title("MVP Application")
+st.subheader("A Simple App with Login and Landing Page")
 
-# Registration/Login Section
-st.sidebar.header("Welcome")
-choice = st.sidebar.radio("Login or Register:", ["Login", "Register"])
-if choice == "Register":
-    st.sidebar.text_input("Enter your name")
-    st.sidebar.text_input("Enter your email")
-    st.sidebar.text_input("Set a password", type="password")
-    if st.sidebar.button("Register"):
-        st.success("Registration successful!")
-elif choice == "Login":
-    st.sidebar.text_input("Enter email")
-    st.sidebar.text_input("Enter password", type="password")
-    if st.sidebar.button("Login"):
-        st.success("Login successful!")
+# Session State for Login
+if "logged_in" not in st.session_state:
+    st.session_state["logged_in"] = False
 
-# Appointment Booking Section
-st.header("Book Your Appointment")
-services = ["Haircut", "Shaving", "Facial", "Manicure", "Pedicure"]
-selected_service = st.selectbox("Choose a Service", services)
-date = st.date_input("Select a Date")
-time = st.time_input("Select a Time")
-if st.button("Confirm Booking"):
-    st.success(f"Booking Confirmed: {selected_service} on {date} at {time}")
+# Login Page
+if not st.session_state["logged_in"]:
+    st.header("Login")
+    phone_number = st.text_input("Enter your phone number", max_chars=10)
+    if st.button("Login"):
+        if phone_number:
+            st.session_state["logged_in"] = True
+            st.success("Login successful!")
+            st.experimental_rerun()
+        else:
+            st.error("Please enter a valid phone number")
+else:
+    # Landing Page
+    st.header("Landing Page")
+    st.write("Welcome to the landing page!")
 
-# Admin Section (For Salon Owners)
-st.sidebar.header("Salon Dashboard")
-if st.sidebar.checkbox("Show Appointments"):
-    st.sidebar.write("Here, salon owners can view/manage appointments.")
-
+    if st.button("Logout"):
+        st.session_state["logged_in"] = False
+        st.experimental_rerun()

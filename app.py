@@ -84,7 +84,8 @@ else:
                 if file_name.lower().endswith(('.png', '.jpg', '.jpeg')):
                     st.image(file_path, use_column_width=True)
                 elif file_name.lower().endswith('.pdf'):
-                    st.write(f"PDF: {file_name} (download it from {file_path})")
+                    st.write(f"PDF: {file_name}")
+                    st.download_button("Download PDF", data=open(file_path, "rb").read(), file_name=file_name)
         else:
             st.write("No bills uploaded yet.")
 
@@ -99,9 +100,12 @@ else:
                 file_path = os.path.join(user_folder, uploaded_file.name)
                 with open(file_path, "wb") as f:
                     f.write(uploaded_file.getbuffer())
+                if st.session_state["current_user"] not in user_data:
+                    user_data[st.session_state["current_user"]] = {"bills": []}
                 user_data[st.session_state["current_user"]]["bills"].append(uploaded_file.name)
                 save_user_data(user_data)
                 st.success("Bill uploaded and saved!")
+                st.experimental_rerun()
         elif action == "Take a Photo":
             st.write("Taking a photo feature is not available in this MVP version.")
 

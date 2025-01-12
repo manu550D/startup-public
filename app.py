@@ -1,6 +1,7 @@
 import streamlit as st
 from PIL import Image
 import tempfile
+import re
 
 # Streamlit App
 st.title("MVP Application")
@@ -15,12 +16,13 @@ if not st.session_state["logged_in"]:
     st.header("Login")
     phone_number = st.text_input("Enter your phone number", max_chars=10)
     if st.button("Login"):
-        if phone_number:
+        # Validate phone number
+        if re.fullmatch(r"\d{10}", phone_number):
             st.session_state["logged_in"] = True
             st.success("Login successful!")
             st.experimental_rerun()
         else:
-            st.error("Please enter a valid phone number")
+            st.error("Please enter a valid 10-digit phone number")
 else:
     # Landing Page
     st.header("Landing Page")

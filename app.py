@@ -34,10 +34,16 @@ else:
         action = st.radio("Select an action:", ("Upload from Gallery", "Take a Photo"))
 
         if action == "Upload from Gallery":
-            uploaded_file = st.file_uploader("Choose a file", type=["jpg", "jpeg", "png"])
+            uploaded_file = st.file_uploader("Choose a file", type=["jpg", "jpeg", "png", "pdf"])
             if uploaded_file is not None:
-                image = Image.open(uploaded_file)
-                st.image(image, caption="Uploaded Bill", use_column_width=True)
+                file_type = uploaded_file.type
+                if file_type.startswith("image"):
+                    image = Image.open(uploaded_file)
+                    st.image(image, caption="Uploaded Bill", use_column_width=True)
+                elif file_type == "application/pdf":
+                    st.write("PDF Preview is not available in this version. File uploaded successfully.")
+                else:
+                    st.error("Unsupported file format. Please upload an image or PDF.")
         elif action == "Take a Photo":
             st.write("Taking a photo feature is not available in this MVP version.")
 
